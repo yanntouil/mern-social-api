@@ -1,0 +1,16 @@
+# dependencies
+/node_modules
+
+# local env files and config
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+/config
+
+# production
+/build
+
+# typescript
+*.tsbuildinfo
