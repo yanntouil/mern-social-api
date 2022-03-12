@@ -22,7 +22,7 @@ export default {
     /**
      * Read
      */
-    show : async (req: Request, res: Response) => {
+    show : async (req: Request< {id: string} >, res: Response) => {
         const { id } = req.params
         if (!objectIdIsValid(id)) throw new RequestError(`Invalid ID`, 400)
         const user = await User.findById(id)

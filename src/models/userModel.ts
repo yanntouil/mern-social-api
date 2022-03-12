@@ -131,8 +131,9 @@ schema.methods.omit = function (keys: (keyof mongoose.LeanDocument<UserDocument>
 schema.methods.deleteOnCascade = async function () {
     const user = this as UserDocument
     return Promise.all([
-        User.remove({ _id: user.id }),
-        Session.remove({ user: user.id }),
+        User.findByIdAndDelete(user.id),
+        Session.deleteMany({ user: user.id }),
+        // Delete files associated
     ])
 }
 

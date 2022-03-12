@@ -1,8 +1,8 @@
-import { Request, Response, NextFunction } from 'express'
+import e, { Request, Response, NextFunction } from 'express'
 import logger from '../utils/logger'
 
 interface HandleRequest {
-    (fn: (req: Request, res: Response, next: NextFunction) => void): (
+    (fn: (req: Request<any, any, any>, res: Response, next: NextFunction) => void): (
         req: Request,
         res: Response,
         next: NextFunction

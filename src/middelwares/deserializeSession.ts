@@ -2,8 +2,9 @@ import { Request, Response, NextFunction } from 'express'
 import verifyToken from '../utils/verifyToken'
 import refreshToken from '../utils/refreshToken'
 import SessionModel, { SessionDocument } from '../models/sessionModel'
-import { userPrivateFieldsHidden } from '../models/userModel'
 import mongoose from 'mongoose'
+import { PopulatedSessionDocument } from '..'
+import User from '../models/userModel'
 
 export default async function deserializeSession(
     req: Request,
@@ -28,13 +29,11 @@ export default async function deserializeSession(
     if (decoded) {
         // ? Populate generate an error if user does not exist,
         // ? this avoids creating a session if the user no longer exists
-        await SessionModel.findById(
-            decoded.session,
-            (err: mongoose.CallbackError, session: SessionDocument | null) => {
-                if (!err && session?.valid && session.user)
-                    res.locals = { ...res.locals, session }
-            }
-        ).populate('user', userPrivateFieldsHidden)
+        try {
+            const session = await SessionModel.findById<PopulatedSessionDocument>(decoded.session)
+                .populate('user', User.privateFieldsHidden().join(' '))
+            if (session?.valid && session.user) res.locals = { ...res.locals, session }
+        } catch (_) {}
     }
     next()
 }

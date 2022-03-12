@@ -80,8 +80,8 @@ schema.methods.omit = function (keys: (keyof mongoose.LeanDocument<FeedDocument>
 schema.methods.deleteOnCascade = async function () {
     const feed = this as FeedDocument
     return Promise.all([
-        FeedModel.findByIdAndRemove(feed.id),
-        // Delete files
+        FeedModel.findByIdAndDelete(feed.id),
+        // Delete files associated
     ])
 }
 
@@ -91,7 +91,7 @@ schema.methods.deleteOnCascade = async function () {
 schema.static(
     'publicFields', 
     (): (keyof mongoose.LeanDocument<FeedDocument>)[] => 
-        ['id', 'message', 'medias', 'likers', 'createdAt', 'updatedAt']
+        ['id', 'user', 'message', 'medias', 'likers', 'createdAt', 'updatedAt']
 )
 
 

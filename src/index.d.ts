@@ -14,7 +14,7 @@ interface ResponseLocals {
 
 declare module 'express' {
     interface Response  {
-        locals: ResponseLocals;
+        locals: ResponseLocals
     }
 }
 
