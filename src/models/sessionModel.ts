@@ -11,7 +11,6 @@ export interface SessionModel extends Model<SessionDocument> {
     //
 }
 
-
 const Session = mongoose.model<SessionDocument, SessionModel>('Session', sessionSchema)
 
 export default Session

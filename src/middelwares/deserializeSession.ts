@@ -1,8 +1,7 @@
 import { Request, Response, NextFunction } from 'express'
 import verifyToken from '../utils/verifyToken'
 import refreshToken from '../utils/refreshToken'
-import SessionModel, { SessionDocument } from '../models/sessionModel'
-import mongoose from 'mongoose'
+import SessionModel from '../models/sessionModel'
 import { PopulatedSessionDocument } from '..'
 import User from '../models/userModel'
 
