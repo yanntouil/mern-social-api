@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express'
+import { Request, Response } from 'express'
 import RequestError from '../errors/RequestError'
 import User from '../models/userModel'
 import objectIdIsValid from '../database/objectIdIsValid'
@@ -8,6 +8,7 @@ import objectIdIsValid from '../database/objectIdIsValid'
  * User Controller
  */
 export default {
+
     /**
      * Index
      */
@@ -19,6 +20,7 @@ export default {
             .select(User.publicFields())
         res.status(200).json(users)
     },
+
     /**
      * Read
      */

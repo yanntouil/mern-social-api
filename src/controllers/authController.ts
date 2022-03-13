@@ -1,7 +1,7 @@
 import { Request, Response } from 'express'
 import { RequestError } from '../errors'
 import User from '../models/userModel'
-import SessionModel from '../models/sessionModel'
+import Session from '../models/sessionModel'
 import objectIdIsValid from '../database/objectIdIsValid'
 import createToken from '../utils/createToken'
 import { registrerMail, recoverEmailTokenMail, recoverPasswordMail, validEmailMail  } from '../mails'
@@ -41,7 +41,7 @@ export default {
         if (!user) throw new RequestError(`User not found`, 400)
         if (user.valid === false) throw new RequestError(`Account has not been validated`, 400)
         if (!(await user.comparePassword(password))) throw new RequestError(`Invalid password`, 400)
-        const session = await SessionModel.create({ user: user.id, userAgent: req.get("user-agent") || '' })
+        const session = await Session.create({ user: user.id, userAgent: req.get("user-agent") || '' })
         const accessToken = createToken({ user: user.id, session: session.id }, "accessToken")
         const refreshToken = createToken({ user: user.id, session: session.id }, "refreshToken")
         res.status(201).json({ message: 'Session started', accessToken, refreshToken })
@@ -54,7 +54,7 @@ export default {
      */
     logout : async (req: Request, res: Response) => {
         const { session } = res.locals
-        await SessionModel.findByIdAndUpdate(session._id, { valid: false })
+        await Session.findByIdAndUpdate(session._id, { valid: false })
         res.status(200).json({ message: 'Session closed' })
     },
 
@@ -187,7 +187,7 @@ export default {
         const { passwordToken } = req.params
         const user = await User.findOneAndUpdate({ passwordToken }, { passwordToken: '' } )
         if (!user) throw new RequestError(`Invalid authentication token`, 400)
-        const session = await SessionModel.create({ user: user._id, userAgent: req.get("user-agent") || '' })
+        const session = await Session.create({ user: user._id, userAgent: req.get("user-agent") || '' })
         const accessToken = createToken({ user: user.id, session: session.id }, "accessToken")
         const refreshToken = createToken({ user: user.id, session: session.id }, "refreshToken")
         res.status(200).json({ message: 'session started', accessToken, refreshToken })

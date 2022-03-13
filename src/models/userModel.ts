@@ -1,33 +1,8 @@
-import mongoose, { Schema, Model, Types, Document, ObjectId } from 'mongoose'
-import bcrypt from 'bcrypt'
-import config from 'config'
-import omit from '../utils/omit'
-import {default as Session} from './sessionModel'
+import mongoose, {  Model } from 'mongoose'
+import userSchema, { UserDocument } from '../schemas/userSchema'
 
 
-/**
- * Document interface
- */
-export interface UserDocument extends Document {
-    _id: ObjectId
-    username: string
-    password: string
-    email: string
-    passwordToken: string
-    valid: boolean
-    emailCheck: boolean
-    emailToken: string
-    about: string
-    coverPicture: string
-    profilePicture: string
-    followers: Types.Array<ObjectId>
-    followings: Types.Array<ObjectId>
-    createdAt: Date
-    updatedAt: Date
-    comparePassword(password: string): Promise<Boolean>
-    omit(keys: (keyof mongoose.LeanDocument<UserDocument>)[]): {}
-    deleteOnCascade: () => Promise<boolean>
-}
+
 
 /**
  * Model interface
@@ -38,123 +13,22 @@ export interface UserModel extends Model<UserDocument> {
 }
 
 /**
- * Schema
- */
-const schema = new Schema<UserDocument, UserModel>(
-    {
-        username: {
-            type: String,
-            required: true,
-            unique: true,
-            trim: true,
-        },
-        password: {
-            type: String,
-            required: true,
-        },
-        passwordToken: {
-            type: String,
-            default: '',
-        },
-        valid: {
-            type: Boolean,
-            default: false,
-        },
-        email: {
-            type: String,
-            required: true,
-            lowercase: true,
-            unique: true,
-            trim: true,
-        },
-        emailCheck: {
-            type: Boolean,
-            default: false,
-        },
-        emailToken: {
-            type: String,
-        },
-        about: {
-            type: String,
-            default: '',
-            trim: true,
-        },
-        coverPicture: {
-            type: String,
-        },
-        profilePicture: {
-            type: String,
-        },
-        followers: [{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'User',
-        }],
-        followings: [{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'User',
-        }],
-    },
-    { timestamps: true }
-)
-
-/**
- * Before save
- */
-schema.pre("save", async function(next) {
-    const user = this as UserDocument
-    if (!user.isModified("password")) return next()// Not modified => next
-    const salt = await bcrypt.genSalt(config.get<number>("saltWorkFactor"))
-    const hash = bcrypt.hashSync(user.password, salt)
-    user.password = hash
-    next()
-})
-
-/**
- * Document method : Compare password
- */
-schema.methods.comparePassword = async function (password: string): Promise<boolean> {
-    const user = this as UserDocument
-    return bcrypt.compare(password, user.password).catch((_) => false)
-}
-
-/**
- * Document method : Omit
- */
-schema.methods.omit = function (keys: (keyof mongoose.LeanDocument<UserDocument>)[]) {
-    const user = this as UserDocument
-    return omit(user.toObject(), keys)
-}
-
-/**
- * Document method : Delete on cascad
- */
-schema.methods.deleteOnCascade = async function () {
-    const user = this as UserDocument
-    return Promise.all([
-        User.findByIdAndDelete(user.id),
-        Session.deleteMany({ user: user.id }),
-        // Delete files associated
-    ])
-}
-
-/**
  * Model method : Delete on cascad
  */
-schema.static(
+userSchema.static(
     'publicFields', 
     (): (keyof mongoose.LeanDocument<UserDocument>)[] => 
         ['id', 'username', 'followers', 'followings', 'valid', 'createdAt', 'updatedAt']
 )
 
-
 /**
  * Model method : privateFieldsHidden
  */
-schema.static(
+userSchema.static(
     'privateFieldsHidden', 
     (): (keyof mongoose.LeanDocument<UserDocument>)[] => 
         ['password', 'passwordToken', 'emailToken']
 )
 
-const User = mongoose.model<UserDocument, UserModel>("User", schema)
+const User = mongoose.model<UserDocument, UserModel>("User", userSchema)
 export default User

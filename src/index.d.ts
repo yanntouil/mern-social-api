@@ -1,7 +1,7 @@
 import 'express'
 import { Request, Response } from 'express'
-import { SessionDocument } from './models/sessionModel'
-import { UserDocument } from './models/userModel'
+import { SessionDocument } from './schemas/sessionSchema'
+import { UserDocument } from './schemas/userSchema'
 
 
 interface PopulatedSessionDocument extends SessionDocument {
